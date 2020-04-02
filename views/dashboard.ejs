@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Queryfy Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+body {
+    overflow-x: none;
+}
+
+        @keyframes fade {
+            from {
+                opacity: 1.0;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            to {
+                opacity: 1.0;
+            }
+        }
+
+        @-webkit-keyframes fade {
+            from {
+                opacity: 1.0;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+
+            to {
+                opacity: 1.0;
+            }
+        }
+
+        .blink {
+            animation: fade 1500ms infinite;
+            -webkit-animation: fade 1500ms infinite;
+        }
+
+        textarea:focus,
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="datetime"]:focus,
+        input[type="datetime-local"]:focus,
+        input[type="date"]:focus,
+        input[type="month"]:focus,
+        input[type="time"]:focus,
+        input[type="week"]:focus,
+        input[type="number"]:focus,
+        input[type="email"]:focus,
+        input[type="url"]:focus,
+        input[type="search"]:focus,
+        input[type="tel"]:focus,
+        input[type="color"]:focus,
+        .uneditable-input:focus {
+            border-color: rgba(0, 0, 0, 0);
+            box-shadow: none;
+            outline: 0 none;
+        }
+
+        input:-internal-autofill-selected {
+            background-color: none;
+        }
+
+        .loader {
+            width: 100%;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            z-index: 999;
+        }
+    </style>
+</head>
+
+<body>
+    
+    <nav class="navbar navbar-light bg-light justify-content-between mb-2">
+        <a class="navbar-brand pl-3"><span class="font-weight-bold">Queryfy</span> Dashboard</a>
+        <a href="/auth/logout" class="btn btn-sm btn-secondary">Logout</a>
+    </nav>
+    <div class="card mx-2 border-0">
+        <div class="card-title p-1 pl-4 font-weight-bold font-italic mb-1">
+            Hi <%= user.firstname %>!
+        </div>
+        <div class="card-body pt-0">
+            <div class="alert alert-danger" id="success-danger">
+                <button type="button" class="close" data-dismiss="alert">x</button>
+                Query fired was not recognised. Please try again
+            </div>
+            <form class="form-inline">
+                <div class="row w-100">
+                    <div class="col-md-10">
+                        <input type="text" class="form-control input-lg w-100 border-left-0 border-right-0 border-top-0"
+                            id="nlquery" required placeholder="Enter query here..." autocomplete="off">
+                        <!--<div class="input-group">
+                            <input class="form-control border-right-0 border-left-0 border-top-0"
+                                placeholder="Enter query here..." type="text" name="nlquery">
+                            <span class="input-group-addon transparent" onclick="">
+                                <i class='fa fa-microphone fa-2x' aria-hidden='true'></i></span>
+                        </div>-->
+                    </div>
+                    <div class="col-md-1 hee"><i class='fa fa-microphone fa-2x py-1' aria-hidden='true'
+                            onclick="startStopListening()"></i></span>
+                    </div>
+                    <div class="col-md-1 text-center p-0">
+                        <button class="btn secondary mb-2 border border-dark" onclick="onQuerySubmit()">Get
+                            data</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    <div class="loader">
+            <img src="https://i.gifer.com/8T5f.gif" alt="loader"/>
+        </div>
+    <div class="container" id="maincontainer">
+
+
+        <table class="table" id="table1">
+            <thead class="bg-light">
+                <tr>
+                    <th scope="col">Product Id</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Company</th>
+                    <th scope="col">Model</th>
+                    <th scope="col">Instock</th>
+                    <th scope="col">Sold</th>
+                    <th scope="col">Returns</th>
+                    <th scope="col">Price</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <% for(i=0;i<products.length;i++){ %>
+                <tr>
+                    <td><%=products[i].productId%></td>
+                    <td><%=products[i].category%></td>
+                    <td><%=products[i].make%></td>
+                    <td><%=products[i].model%></td>
+                    <td><%=products[i].instock%></td>
+                    <td><%=products[i].sold%></td>
+                    <td><%=products[i].returns%></td>
+                    <td><%=products[i].price%></td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+        <table class="table" id="table2">
+            <thead>
+                <tr>
+                    <th scope="col">Company</th>
+                    <th scope="col">Total Instock</th>
+                    <th scope="col">Total Sold</th>
+                    <th scope="col">Total Returns</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody2">
+            </tbody>
+        </table>
+        <div id="canvaswrapper1"></canvas>
+        </div>
+        <div id="canvaswrapper"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        let listening = false;
+        let final_transcript = "";
+        // let
+
+        var SpeechRecognition = window.webkitSpeechRecognition
+        var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+        var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+
+        var recognition = new SpeechRecognition();
+        var speechRecognitionList = new SpeechGrammarList();
+
+        // recognition.continuous = true;
+        recognition.interimResults = false;
+
+        recognition.onstart = function () { console.log("Started") }
+        recognition.onresult = function (event) {
+            // console.log(event.results[0][0].transcript);
+            final_transcript = event.results[0][0].transcript;
+
+        }
+        recognition.onerror = function (event) { console.log(event) }
+        recognition.onend = function () {
+            console.log("ended :" + final_transcript)
+            document.getElementById("nlquery").value = final_transcript;
+            onQuerySubmit();
+        }
+        recognition.onsoundstart = function () {
+            console.log("here1");
+        }
+        recognition.onsoundend = function () {
+            console.log("here4");
+            stopMacro();
+        }
+        recognition.onspeechstart = function () {
+            console.log("here2");
+        }
+        recognition.onspeechend = function () {
+            console.log("here3");
+            // stopMacro();
+        }
+
+        async function startStopListening() {
+            listening = !listening;
+            if (listening) {
+                final_transcript = '';
+                recognition.lang = 'en-IN';
+                recognition.start();
+                document.querySelector('.hee').style = "color: red;"
+                document.querySelector('.hee').classList.add("blink");
+            } else {
+                stopMacro();
+            }
+        }
+
+        function stopMacro() {
+            recognition.stop();
+            document.querySelector('.hee').style = "color: black;"
+            document.querySelector('.hee').classList.remove("blink");
+        }
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+    <script>
+        $("#table2").hide();
+        $(".alert").hide();
+        $(".loader").hide();
+        let result = {
+            data: [{
+                productId: 'fd784d64-0d12-4f4d-ad2c-253fef78f57e ',
+                category: 'smartphone',
+                make: 'Redmi',
+                model: 'Note 6 Pro',
+                instock: '27',
+                sold: '12',
+                returns: '4',
+                price: '14000'
+            }, {
+                productId: '888ae8a0-e862-48d3-9e7d-6ee30ec06007',
+                category: 'smartphone',
+                make: 'Redmi',
+                model: 'Note 7 Pro',
+                instock: '100',
+                sold: '60',
+                returns: '10',
+                price: '17000'
+            }, {
+                productId: '7422a426-98af-4d86-a990-0e9ed6dfa8d8 ',
+                category: 'smartphone',
+                make: 'Samsung',
+                model: 'Galaxy Note 10',
+                instock: '50',
+                sold: '10',
+                returns: '2',
+                price: '50000'
+            }, {
+                productId: '435416ad-d686-4867-9726-323f97264121',
+                category: 'smartphone',
+                make: 'Samsung ',
+                model: 'Galaxy Note 11',
+                instock: '60',
+                sold: '30',
+                returns: '5',
+                price: '60000'
+            }],
+            type: 4
+        }
+        async function postData(url, data) {
+            $("#maincontainer").hide();
+            $(".loader").show();
+            let response = await fetch(url, {
+                method: "POST",
+                mode: "cors",
+                cache: "no-cache",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                redirect: "follow",
+                referrer: "no-referrer",
+                body: JSON.stringify(data)
+            });
+            response = await response.json();
+            console.log(response, 'inside post data');
+            $(".loader").hide();
+            $("#maincontainer").show();
+            return await response;
+        }
+        async function onQuerySubmit() {
+            let nlquery = document.getElementById("nlquery").value;
+            let postQuery = {
+                naturalQuery: nlquery
+            }
+            console.log(postQuery);
+            result = await postData("http://192.168.43.96:3000/api/sendNaturalQuery", postQuery);
+            if (result.success == false) {
+                $(".alert").show();
+                $(".loader").hide();
+                result = await postData("http://192.168.43.96:3000/api/sendNaturalQuery", { postQuery: "get all products" });
+                $("#maincontainer").show();
+            } 
+            $("#canvaswrapper").html("");
+            $("#canvaswrapper1").html("");
+            if (result.success != false) {
+                if (result.type == 1) {
+                    $("#table1").show();
+                    $("#table2").hide();
+                    $("#canvaswrapper").html('<canvas id="singleProd" style="width:300px !important; height: 300px !important; max-width: 300px !important;" class="mx-auto"></canvas>');
+                    document.getElementById("tableBody").innerHTML = `<tr><td>${result.data[0].productId}</td><td>${result.data[0].category}</td><td>${result.data[0].make}</td><td>${result.data[0].model}</td><td>${result.data[0].instock}</td><td>${result.data[0].sold}</td><td>${result.data[0].returns}</td><td>${result.data[0].price}</td></tr>`
+                    var singleProd = document.getElementById('singleProd').getContext('2d');
+                    chartdata = {
+                        labels: ["Sold", "Returns", "Instock"],
+                        datasets: [{
+                            "label": [`${result.data[0].make} ${result.data[0].model} Chart`],
+                            "data": [result.data[0].sold, result.data[0].returns, result.data[0].instock],
+                            "fill": false,
+                            "backgroundColor": ["rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)", "rgba(255, 205, 86, 0.2)"],
+                            "borderColor": ["rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)"],
+                            "borderWidth": 1
+                        }],
+                    };
+                    let options = {
+                        "scales": {
+                            "xAxes": [{ "ticks": { "beginAtZero": true } }],
+                            "yAxes": [{ "ticks": { "beginAtZero": true } }]
+                        },
+                        title: {
+                            text: `${result.data[0].make} ${result.data[0].model} Chart`
+                        }
+                    }
+                    var singleProdChart = new Chart(singleProd, {
+                        type: "bar",
+                        data: chartdata,
+                        options: options
+                    });
+                } else if (result.type == 0) {
+                    $("#table1").show();
+                    $("#table2").hide();
+                    document.getElementById("tableBody").innerHTML = `<tr><td>${result.data[0].productId}</td><td>${result.data[0].category}</td><td>${result.data[0].make}</td><td>${result.data[0].model}</td><td>${result.data[0].instock}</td><td>${result.data[0].sold}</td><td>${result.data[0].returns}</td><td>${result.data[0].price}</td></tr>`;
+                    if (result.data.length > 1) {
+                        for (i = 1; i < result.data.length; i++) {
+                            document.getElementById("tableBody").innerHTML += `<tr><td>${result.data[i].productId}</td><td>${result.data[i].category}</td><td>${result.data[i].make}</td><td>${result.data[i].model}</td><td>${result.data[i].instock}</td><td>${result.data[i].sold}</td><td>${result.data[i].returns}</td><td>${result.data[i].price}</td></tr>`;
+                        }
+                    }
+
+                } else if (result.type == 2) {
+                    $("#table2").hide();
+                    $("#table1").show();
+                    document.getElementById("tableBody").innerHTML = `<tr><td>${result.data[0].productId}</td><td>${result.data[0].category}</td><td>${result.data[0].make}</td><td>${result.data[0].model}</td><td>${result.data[0].instock}</td><td>${result.data[0].sold}</td><td>${result.data[0].returns}</td><td>${result.data[0].price}</td></tr>`;
+                    if (result.data.length > 1) {
+                        for (i = 1; i < result.data.length; i++) {
+                            document.getElementById("tableBody").innerHTML += `<tr><td>${result.data[i].productId}</td><td>${result.data[i].category}</td><td>${result.data[i].make}</td><td>${result.data[i].model}</td><td>${result.data[i].instock}</td><td>${result.data[i].sold}</td><td>${result.data[i].returns}</td><td>${result.data[i].price}</td></tr>`;
+                        }
+                    }
+                    $("#canvaswrapper").html('<canvas id="singleProd" style="width:300px !important; height: 300px !important; max-width: 300px !important;" class="mx-auto mb-2"></canvas>');
+                    document.getElementById("canvaswrapper").innerHTML += '<div class="row"><div class="col-md-4"><canvas id="singleProd1" style="width:300px !important; height: 300px !important; max-width: 300px !important;" class="mx-auto"></canvas></div><div class="col-md-4"><canvas id="singleProd2" style="width:300px !important; height: 300px !important; max-width: 300px !important;" class="mx-auto"></canvas></div><div class="col-md-4"><canvas id="singleProd3" style="width:300px !important; height: 300px !important; max-width: 300px !important;" class="mx-auto"></canvas></div></div>'
+                    var singleProd = document.getElementById('singleProd').getContext('2d');
+                    var singleProd1 = document.getElementById('singleProd1').getContext('2d');
+                    var singleProd2 = document.getElementById('singleProd2').getContext('2d');
+                    var singleProd3 = document.getElementById('singleProd3').getContext('2d');
+                    let backgroundColor = ["rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)", "rgba(255, 205, 86, 0.2)"];
+                    let borderColor = ["rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)"]
+                    let chartdata = {
+                        labels: [],
+                        datasets: [{
+                            "label": [`${result.data[0].make} Products Sold Chart`],
+                            "data": [],
+                            "fill": false,
+                            "backgroundColor": [],
+                            "borderColor": [],
+                            "borderWidth": 1
+                        }],
+                    };
+                    result.data.forEach(row => {
+                        chartdata.labels.push(row.model);
+                        chartdata.datasets[0].data.push(row.sold);
+                        chartdata.datasets[0].backgroundColor.push(backgroundColor[Math.floor(Math.random() * 3)]);
+                        chartdata.datasets[0].borderColor.push(borderColor[Math.floor(Math.random() * 3)]);
+                    })
+                    let options = {
+                        "scales": {
+                            "xAxes": [{ "ticks": { "beginAtZero": true } }],
+                            "yAxes": [{ "ticks": { "beginAtZero": true } }]
+                        },
+                        title: {
+                            text: `${result.data[0].make} Products Sold Chart`
+                        }
+                    }
+                    var singleProdChart1 = new Chart(singleProd1, {
+                        type: "bar",
+                        data: chartdata,
+                        options: options
+                    });
+                    chartdata = {
+                        labels: [],
+                        datasets: [{
+                            "label": [`${result.data[0].make} Products Returned Chart`],
+                            "data": [],
+                            "fill": false,
+                            "backgroundColor": [],
+                            "borderColor": [],
+                            "borderWidth": 1
+                        }],
+                    };
+                    result.data.forEach(row => {
+                        chartdata.labels.push(row.model);
+                        chartdata.datasets[0].data.push(row.returns);
+                        chartdata.datasets[0].backgroundColor.push(backgroundColor[Math.floor(Math.random() * 3)]);
+                        chartdata.datasets[0].borderColor.push(borderColor[Math.floor(Math.random() * 3)]);
+                    })
+                    options = {
+                        "scales": {
+                            "xAxes": [{ "ticks": { "beginAtZero": true } }],
+                            "yAxes": [{ "ticks": { "beginAtZero": true } }]
+                        },
+                        title: {
+                            text: `${result.data[0].make} Products Returned Chart`
+                        }
+                    }
+                    var singleProdChart2 = new Chart(singleProd2, {
+                        type: "bar",
+                        data: chartdata,
+                        options: options
+                    });
+                    chartdata = {
+                        labels: [],
+                        datasets: [{
+                            "label": [`${result.data[0].make} Products Instock Chart`],
+                            "data": [],
+                            "fill": false,
+                            "backgroundColor": [],
+                            "borderColor": [],
+                            "borderWidth": 1
+                        }],
+                    };
+                    result.data.forEach(row => {
+                        chartdata.labels.push(row.model);
+                        chartdata.datasets[0].data.push(row.instock);
+                        chartdata.datasets[0].backgroundColor.push(backgroundColor[Math.floor(Math.random() * 3)]);
+                        chartdata.datasets[0].borderColor.push(borderColor[Math.floor(Math.random() * 3)]);
+                    })
+                    options = {
+                        "scales": {
+                            "xAxes": [{ "ticks": { "beginAtZero": true } }],
+                            "yAxes": [{ "ticks": { "beginAtZero": true } }]
+                        },
+                        title: {
+                            text: `${result.data[0].make} Products Instock Chart`
+                        }
+                    }
+                    var singleProdChart3 = new Chart(singleProd3, {
+                        type: "bar",
+                        data: chartdata,
+                        options: options
+                    });
+                    let sumsold = 0, sumreturns = 0, suminstock = 0;
+                    result.data.forEach(row => {
+                        sumsold += row.sold;
+                        sumreturns += row.returns;
+                        suminstock += row.instock
+                    })
+                    let data = {
+                        datasets: [{
+                            data: [sumsold, sumreturns, suminstock],
+                            backgroundColor: ["rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)", "rgba(255, 205, 86, 0.2)"],
+                            borderColor: ["rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)"],
+                            "borderWidth": 1
+                        }],
+                        labels: [
+                            'Total Sold',
+                            'Total Returns',
+                            'Total Instock'
+                        ],
+                    };
+                    options = {
+                        title: {
+                            display: true,
+                            text: `${result.data[0].make} Details Chart`,
+                            fontSize: 20
+                        },
+                        tooltips: {
+                            enabled: false
+                        },
+                        hover: {
+                            mode: null
+                        },
+                        responsive: false,
+                        legend: {
+                            labels: {
+                                fontSize: 15
+                            }
+                        },
+                        elements: {
+                            arc: {
+                                borderWidth: 0
+                            }
+                        },
+                        plugins: {
+                            datalabels: {
+                                display: false,
+                            },
+                        },
+                        events: false,
+                        animation: {
+                            duration: 500,
+                            easing: "easeOutQuart",
+                            onComplete: function () {
+                                var ctx = this.chart.ctx;
+                                ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontFamily, 'normal', Chart
+                                    .defaults.global.defaultFontFamily);
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+
+                                this.data.datasets.forEach(function (dataset) {
+
+                                    for (var i = 0; i < dataset.data.length; i++) {
+                                        var model = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model,
+                                            total = dataset._meta[Object.keys(dataset._meta)[0]].total,
+                                            mid_radius = model.innerRadius + (model.outerRadius - model
+                                                .innerRadius) / 2,
+                                            start_angle = model.startAngle,
+                                            end_angle = model.endAngle,
+                                            mid_angle = start_angle + (end_angle - start_angle) / 2;
+
+                                        var x = mid_radius * Math.cos(mid_angle);
+                                        var y = mid_radius * Math.sin(mid_angle);
+
+                                        ctx.fillStyle = '#A9A9A9';
+                                        if (i == 3) { // Darker text color for lighter background
+                                            ctx.fillStyle = '#444';
+                                        }
+                                        if (dataset.data[i] != 0) {
+                                            var percent = String(Math.round(dataset.data[i] / total * 100)) + "%";
+                                            // count is commented
+                                            // ctx.fillText(dataset.data[i], model.x + x, model.y + y);
+                                            // Display percent in another line, line break doesn't work for fillText
+                                            ctx.fillText(percent, model.x + x, model.y + y + 15);
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    var makeOverview = new Chart(singleProd, {
+                        type: 'pie',
+                        data: data,
+                        options: options
+                    });
+                }
+                else if (result.type == 3) {
+                    $("#table1").hide();
+                    $("#table2").show();
+                    document.getElementById("tableBody2").innerHTML = `<tr><td>${result.data[0].make}</td><td>${result.data[0].totalinstock}</td><td>${result.data[0].totalsold}</td><td>${result.data[0].totalreturns}</td></tr>`;
+                    if (result.data.length > 1) {
+                        for (i = 1; i < result.data.length; i++) {
+                            document.getElementById("tableBody2").innerHTML += `<tr><td>${result.data[i].make}</td><td>${result.data[i].totalinstock}</td><td>${result.data[i].totalsold}</td><td>${result.data[i].totalreturns}</td></tr>`;
+                        }
+                    }
+                    $("#canvaswrapper").html('');
+                    document.getElementById("canvaswrapper1").innerHTML += '<div class="row"><div class="col-md-4"><canvas id="singleProd1" style="width:300px !important; height: 300px !important; max-width: 300px !important;" class="mx-auto"></canvas></div><div class="col-md-4"><canvas id="singleProd2" style="width:300px !important; height: 300px !important; max-width: 300px !important;" class="mx-auto"></canvas></div><div class="col-md-4"><canvas id="singleProd3" style="width:300px !important; height: 300px !important; max-width: 300px !important;" class="mx-auto"></canvas></div></div>'
+                    var singleProd1 = document.getElementById('singleProd1').getContext('2d');
+                    var singleProd2 = document.getElementById('singleProd2').getContext('2d');
+                    var singleProd3 = document.getElementById('singleProd3').getContext('2d');
+                    let backgroundColor = ["rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)", "rgba(255, 205, 86, 0.2)"];
+                    let borderColor = ["rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)"]
+                    let chartdata = {
+                        labels: [],
+                        datasets: [{
+                            "label": [`Company Products Sold Chart`],
+                            "data": [],
+                            "fill": false,
+                            "backgroundColor": [],
+                            "borderColor": [],
+                            "borderWidth": 1
+                        }],
+                    };
+                    result.data.forEach(row => {
+                        chartdata.labels.push(row.make);
+                        chartdata.datasets[0].data.push(row.totalsold);
+                        chartdata.datasets[0].backgroundColor.push(backgroundColor[Math.floor(Math.random() * 3)]);
+                        chartdata.datasets[0].borderColor.push(borderColor[Math.floor(Math.random() * 3)]);
+                    })
+                    let options = {
+                        "scales": {
+                            "xAxes": [{ "ticks": { "beginAtZero": true } }],
+                            "yAxes": [{ "ticks": { "beginAtZero": true } }]
+                        },
+                        title: {
+                            text: `Company Products Sold Chart`
+                        }
+                    }
+                    var singleProdChart1 = new Chart(singleProd1, {
+                        type: "bar",
+                        data: chartdata,
+                        options: options
+                    });
+                    chartdata = {
+                        labels: [],
+                        datasets: [{
+                            "label": [`Company Products Returned Chart`],
+                            "data": [],
+                            "fill": false,
+                            "backgroundColor": [],
+                            "borderColor": [],
+                            "borderWidth": 1
+                        }],
+                    };
+                    result.data.forEach(row => {
+                        chartdata.labels.push(row.make);
+                        chartdata.datasets[0].data.push(row.totalreturns);
+                        chartdata.datasets[0].backgroundColor.push(backgroundColor[Math.floor(Math.random() * 3)]);
+                        chartdata.datasets[0].borderColor.push(borderColor[Math.floor(Math.random() * 3)]);
+                    })
+                    options = {
+                        "scales": {
+                            "xAxes": [{ "ticks": { "beginAtZero": true } }],
+                            "yAxes": [{ "ticks": { "beginAtZero": true } }]
+                        },
+                        title: {
+                            text: `Company Products Returned Chart`
+                        }
+                    }
+                    var singleProdChart2 = new Chart(singleProd2, {
+                        type: "bar",
+                        data: chartdata,
+                        options: options
+                    });
+                    chartdata = {
+                        labels: [],
+                        datasets: [{
+                            "label": [`Company Products Instock Chart`],
+                            "data": [],
+                            "fill": false,
+                            "backgroundColor": [],
+                            "borderColor": [],
+                            "borderWidth": 1
+                        }],
+                    };
+                    result.data.forEach(row => {
+                        chartdata.labels.push(row.make);
+                        chartdata.datasets[0].data.push(row.totalinstock);
+                        chartdata.datasets[0].backgroundColor.push(backgroundColor[Math.floor(Math.random() * 3)]);
+                        chartdata.datasets[0].borderColor.push(borderColor[Math.floor(Math.random() * 3)]);
+                    })
+                    options = {
+                        "scales": {
+                            "xAxes": [{ "ticks": { "beginAtZero": true } }],
+                            "yAxes": [{ "ticks": { "beginAtZero": true } }]
+                        },
+                        title: {
+                            text: `Company Products Instock Chart`
+                        }
+                    }
+                    var singleProdChart3 = new Chart(singleProd3, {
+                        type: "bar",
+                        data: chartdata,
+                        options: options
+                    });
+                } else if (!result.type) {
+                    $("#table1").hide();
+                    $("#table2").show();
+                    document.getElementById("tableBody2").innerHTML = `<tr><td>${result.data[0].make}</td><td>${result.data[0].totalinstock}</td><td>${result.data[0].totalsold}</td><td>${result.data[0].totalreturns}</td></tr>`;
+                    if (result.data.length > 1) {
+                        for (i = 1; i < result.data.length; i++) {
+                            document.getElementById("tableBody2").innerHTML += `<tr><td>${result.data[i].make}</td><td>${result.data[i].totalinstock}</td><td>${result.data[i].totalsold}</td><td>${result.data[i].totalreturns}</td></tr>`;
+                        }
+                    }
+                }
+            }
+
+        }
+
+    </script>
+</body>
+
+</html>
